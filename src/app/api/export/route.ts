@@ -3,7 +3,7 @@ import { writeFile, unlink, access, readFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   let filePath = '';
   let excelPath = '';
 
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     // Write transactions to JSON file
     await writeFile(filePath, JSON.stringify(transactions));
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Response>((resolve, reject) => {
       // Detailed logging of file paths and spawn details
       console.log('Spawning Python process with:');
       console.log('Script path:', path.resolve('src/app/scripts/export_excel.py'));
@@ -61,13 +61,14 @@ export async function POST(req: Request) {
         }
 
         if (code !== 0) {
-          return reject(
+          resolve(
             NextResponse.json({ 
               error: "Export process failed",
               exitCode: code,
               stderr: stderrData
             }, { status: 500 })
           );
+          return;
         }
 
         try {
@@ -84,7 +85,7 @@ export async function POST(req: Request) {
           resolve(response);
         } catch (fileError) {
           console.error('Excel file read error:', fileError);
-          reject(
+          resolve(
             NextResponse.json({ 
               error: "Failed to read Excel file",
               details: fileError instanceof Error ? fileError.message : 'Unknown error'
@@ -96,7 +97,7 @@ export async function POST(req: Request) {
       // Handle process spawn errors
       pythonProcess.on('error', (spawnError) => {
         console.error('Process spawn error:', spawnError);
-        reject(
+        resolve(
           NextResponse.json({ 
             error: "Failed to start export process",
             details: spawnError.message 
@@ -111,19 +112,16 @@ export async function POST(req: Request) {
       details: error instanceof Error ? error.message : 'Unknown error'
     }, { status: 500 });
   } finally {
-    
     if (filePath) {
       setTimeout(() => {
         unlink(filePath).catch(console.error);
       }, 1000);
-      
     }
 
     if (excelPath) {
       setTimeout(() => {
         unlink(excelPath).catch(console.error);
       }, 1000);
-      
     }
   }
 }
