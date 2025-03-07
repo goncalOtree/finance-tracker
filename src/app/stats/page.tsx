@@ -68,13 +68,14 @@ function StatsPage() {
     (t) => t.year === selectedYear
   );
 
-  const totalIncome = filteredTransactions
+  const totalExpenses = filteredTransactions
     .filter((t) => t.category.type === "FIXO" || t.category.type === "VARIÁVEL")
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalExpenses = filteredTransactions
+  const totalIncome = filteredTransactions
     .filter((t) => t.category.type === "VENCIMENTO")
     .reduce((sum, t) => sum + t.amount, 0);
+
 
   if (loading) {
     return (
