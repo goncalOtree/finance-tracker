@@ -74,9 +74,9 @@ export default function NavBarStyle() {
         </div>
 
         <Link
-          href="/budget"
+          href="/stats"
           className={`flex flex-col items-center text-gray-400 dark:text-gray-500 ${
-            pathname === "/budget"
+            pathname === "/stats"
               ? "text-purple-600 dark:text-purple-500"
               : "text-gray-400 dark:text-gray-500"
           }`}
