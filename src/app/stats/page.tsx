@@ -15,6 +15,8 @@ import AreaChartComponent from "@/components/ui/StatsGraphs/AreaChartComponent";
 import { Skeleton } from "@/components/ui/shadcn/skeleton";
 import PieChartComponent from "@/components/ui/StatsGraphs/PieChartComponent";
 import SummaryCards from "@/components/ui/StatsGraphs/SummaryCards";
+import { BarChart } from "lucide-react";
+import BarChartComponent from "@/components/ui/StatsGraphs/BarChartComponent";
 
 interface TransactionWithCategory {
   id: string;
@@ -119,6 +121,8 @@ function StatsPage() {
           
           {/* Area Chart with full width */}
           <AreaChartComponent transactions={filteredTransactions} />
+
+          <BarChartComponent transactions={filteredTransactions} selectedYear={selectedYear} />
 
           {/* Pie Charts in responsive grid */}
 

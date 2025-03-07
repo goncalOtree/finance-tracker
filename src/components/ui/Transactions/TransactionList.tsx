@@ -75,7 +75,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-      <h3 className="text-lg font-medium mb-4">All Transactions</h3>
+      <h3 className="text-lg font-medium mb-4">Todas as transações</h3>
       
       {sortedTransactions.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400 text-center py-4">No transactions found</p>
