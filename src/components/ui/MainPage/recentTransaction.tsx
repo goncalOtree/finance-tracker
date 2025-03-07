@@ -18,6 +18,7 @@ type TransactionWithCategory = {
   };
   month: string;
   year: string;
+  day: String;
 };
 
 export default function RecentTransactions() {
@@ -59,7 +60,7 @@ export default function RecentTransactions() {
                 <IconComponent className="text-purple-500" size={24} />
                 <div className="ml-3">
                   <p className="text-sm font-medium">{transaction.category.name}</p>
-                  <p className="text-xs text-gray-500">{transaction.month} {transaction.year}</p>
+                  <p className="text-xs text-gray-500">{transaction.day} {transaction.month} {transaction.year}</p>
                 </div>
                 {transaction.category.type === CategoryType.VENCIMENTO ? (
                   <span className="ml-auto text-green-500 font-semibold">

@@ -51,6 +51,7 @@ model Transaction {
   authorId String
   month String
   year String
+  day String 
   categoryId String
   amount Float
   name String?

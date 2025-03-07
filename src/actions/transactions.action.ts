@@ -59,8 +59,8 @@ export async function getCategoryByName(name: string, authorId: any) {
 }
 
 // Create a new transaction
-export async function createTransaction({ amount, month, year, categoryId, name }: 
-  { amount: number; month: string; year: number; categoryId: string; name?: string }) {
+export async function createTransaction({ amount, month, year,day, categoryId, name }: 
+  { amount: number; month: string; year: number; day: string; categoryId: string; name?: string }) {
   
   const userId  = await getDbUserId();
   if (!userId) throw new Error("Unauthorized");
@@ -70,6 +70,7 @@ export async function createTransaction({ amount, month, year, categoryId, name 
       amount,
       month: month,
       year: year.toString(),
+      day: day,
       categoryId,
       name: name || null,
       authorId: userId,

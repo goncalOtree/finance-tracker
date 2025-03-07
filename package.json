@@ -7,7 +7,8 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "prisma:seed": "ts-node --transpile-only prisma/seed.js"
+    "prisma:seed": "ts-node --transpile-only prisma/seed.js",
+    "update-days": "ts-node --transpile-only prisma/update-days.js"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.12.1",

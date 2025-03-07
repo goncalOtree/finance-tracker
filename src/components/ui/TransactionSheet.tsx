@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/shadcn/select";
 import { Input } from "@/components/ui/shadcn/input";
 import { Button } from "@/components/ui/shadcn/button";
-import { Switch } from "@/components/ui/shadcn/switch";
+import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Euro } from "lucide-react";
 import DatePicker from "react-datepicker";
@@ -26,6 +26,7 @@ import {
 } from "@/actions/transactions.action";
 import { CategoryType } from "@prisma/client";
 import { ptBR } from "date-fns/locale";
+import { format } from "date-fns";
 
 type TransactionType = "income" | "expense";
 
@@ -64,10 +65,14 @@ export default function TransactionSheet({
   const [amount, setAmount] = useState("");
   const [name, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [month, setMonth] = useState(portugueseMonths[new Date().getMonth()]); // Default to current month in Portuguese
-  const [year, setYear] = useState(new Date().getFullYear().toString()); // Default to current year as string
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+
+  // Derived state from selectedDate
+  const month = portugueseMonths[selectedDate.getMonth()];
+  const year = selectedDate.getFullYear().toString();
+  const day = selectedDate.getDate().toString();
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -89,15 +94,6 @@ export default function TransactionSheet({
     loadCategories();
   }, [type]);
 
-  const handleDateChange = (date: Date | null) => {
-    if (date) {
-      const selectedMonth = portugueseMonths[date.getMonth()];
-      const selectedYear = date.getFullYear().toString();
-      setMonth(selectedMonth);
-      setYear(selectedYear);
-    }
-  };
-
   const handleSubmit = async () => {
     if (!amount || parseFloat(amount) <= 0) {
       toast("Please enter a valid amount");
@@ -114,8 +110,9 @@ export default function TransactionSheet({
       const finalAmount = Math.abs(parseFloat(amount));
       await createTransaction({
         amount: finalAmount,
-        month: month, // Month in lowercase Portuguese
-        year: parseInt(year), // Year as number
+        month: month,
+        year: parseInt(year),
+        day: day,
         categoryId: category,
         name: name || undefined,
       });
@@ -190,20 +187,40 @@ export default function TransactionSheet({
               />
             </div>
 
-            {/* Month and Year Picker */}
+            {/* Date Picker with Day Selection */}
             <div className="space-y-2">
-              <DatePicker
-                selected={(() => {
-                  // Create date object with correct month index (0-based)
-                  const monthIndex = portugueseMonths.indexOf(month);
-                  return new Date(parseInt(year), monthIndex, 1);
-                })()}
-                onChange={handleDateChange}
-                dateFormat="MMMM yyyy"
-                showMonthYearPicker
-                locale={ptBR}
-                className="w-full p-2 border rounded"
-              />
+              <div className="relative">
+                <DatePicker
+                  selected={selectedDate}
+                  onChange={(date: Date | null) => {
+                    if (date) setSelectedDate(date);
+                  }}
+                  dateFormat="dd MMMM yyyy"
+                  locale={ptBR}
+                  className="w-full p-3 pr-10 border rounded focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  calendarClassName="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700"
+                  dayClassName={(date) => 
+                    date.getDate() === selectedDate.getDate() && 
+                    date.getMonth() === selectedDate.getMonth() && 
+                    date.getFullYear() === selectedDate.getFullYear()
+                      ? "bg-purple-500 text-white rounded-full"
+                      : ""
+                  }
+                  popperClassName="z-[1000]"
+                  customInput={
+                    <div className="relative w-full cursor-pointer">
+                      <Input
+                        className="pl-10 cursor-pointer"
+                        value={format(selectedDate, "dd MMMM yyyy", { locale: ptBR })}
+                        readOnly
+                      />
+                      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
+                        <CalendarIcon className="h-5 w-5" />
+                      </div>
+                    </div>
+                  }
+                />
+              </div>
             </div>
           </div>
 

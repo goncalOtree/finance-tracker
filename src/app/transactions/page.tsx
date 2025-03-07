@@ -34,6 +34,7 @@ interface TransactionWithCategory {
   };
   month: string;
   year: string;
+  day: string;
   createdAt: Date;
   description?: string;
 }
