@@ -23,12 +23,14 @@ interface TransactionTotalsProps {
   transactions: TransactionWithCategory[];
   filteredTransactions: TransactionWithCategory[];
   selectedYear: string | null;
+  onItemClick?: (month: string, category: string) => void; // New callback prop
 }
 
 export function TransactionTotals({
   transactions,
   filteredTransactions,
-  selectedYear
+  selectedYear,
+  onItemClick
 }: TransactionTotalsProps) {
   if (!selectedYear) return null;
 
@@ -44,13 +46,20 @@ export function TransactionTotals({
       (filteredTotalsByMonthAndCategory[transaction.month][categoryName] || 0) + transaction.amount;
   });
 
+  // Handle click on a category item
+  const handleCategoryClick = (month: string, category: string) => {
+    if (onItemClick) {
+      onItemClick(month, category);
+    }
+  };
+
   return (
     <>
       {Object.entries(filteredTotalsByMonthAndCategory).map(([month, categories]) => (
         <Card key={month} className="mb-4">
           <CardHeader>
             <CardTitle>
-              {month} {selectedYear}
+              {month.charAt(0).toUpperCase() + month.slice(1)} {selectedYear}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -66,7 +75,19 @@ export function TransactionTotals({
               return (
                 <div
                   key={category}
-                  className="flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg shadow mb-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className={`flex items-center p-3 bg-gray-100 dark:bg-gray-800 rounded-lg shadow mb-2 
+                    hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors
+                    ${onItemClick ? 'cursor-pointer active:scale-[0.98]' : ''}`}
+                  onClick={() => handleCategoryClick(month, category)}
+                  title={onItemClick ? `Click to view all ${category} transactions in ${month}` : undefined}
+                  role={onItemClick ? "button" : undefined}
+                  tabIndex={onItemClick ? 0 : undefined}
+                  onKeyDown={(e) => {
+                    if (onItemClick && (e.key === 'Enter' || e.key === ' ')) {
+                      e.preventDefault();
+                      handleCategoryClick(month, category);
+                    }
+                  }}
                 >
                   <IconComponent className="text-purple-600 dark:text-purple-500" size={24} />
                   <div className="ml-3 flex-grow">
@@ -75,6 +96,7 @@ export function TransactionTotals({
                   <span className={`font-semibold ${colorClass}`}>
                     {isIncome ? "+" : "-"}€{total.toFixed(2)}
                   </span>
+                  
                 </div>
               );
             })}
