@@ -1,6 +1,4 @@
 const ExcelJS = require('exceljs');
-const fs = require('fs').promises;
-const path = require('path');
 
 const monthDict = {
   janeiro: "F",
@@ -17,18 +15,15 @@ const monthDict = {
   dezembro: "Q",
 };
 
-async function generateExcel(inputFile, outputFile) {
+async function generateExcel(transactions) {
   const workbook = new ExcelJS.Workbook();
-  const worksheet = workbook.addWorksheet();
-
-  const transactions = JSON.parse(await fs.readFile(inputFile, 'utf8'));
+  const worksheet = workbook.addWorksheet("Transactions");
 
   // Define formats
   const bold = { bold: true };
-  const green = { font: { color: { argb: 'FF00FF00' } } };
-  const greenBold = { bold: true, font: { color: { argb: 'FF00FF00' } } };
-  const red = { font: { color: { argb: 'FFFF0000' } } };
-  const redBold = { bold: true, font: { color: { argb: 'FFFF0000' } } };
+  const green = {color: { argb: 'FF00B050' } };
+  const greenBold = { bold: true,color: { argb: 'FF00B050' }};
+  const redBold = { bold: true,color: { argb: 'FFC00000' }};
 
   // Organize data
   const months = [
@@ -77,6 +72,7 @@ async function generateExcel(inputFile, outputFile) {
         row++;
       }
     }
+
     row++;
   }
 
@@ -87,11 +83,11 @@ async function generateExcel(inputFile, outputFile) {
   worksheet.getCell(row + 1, 3).value = 'Total variável';
   worksheet.getCell(row + 1, 3).font = redBold;
   worksheet.getCell(row + 2, 3).value = 'Total Poupança';
-  worksheet.getCell(row + 2, 3).font = greenBold;
+  worksheet.getCell(row + 2, 3).font = green;
   worksheet.getCell(row + 4, 3).value = 'Total geral';
   worksheet.getCell(row + 4, 3).font = redBold;
   worksheet.getCell(row + 6, 3).value = 'Vencimentos';
-  worksheet.getCell(row + 6, 3).font = greenBold;
+  worksheet.getCell(row + 6, 3).font = green;
   worksheet.getCell(row + 8, 3).value = 'Poupança';
   worksheet.getCell(row + 8, 3).font = greenBold;
 
@@ -111,20 +107,20 @@ async function generateExcel(inputFile, outputFile) {
       formula: `SUM(${monthCol}${rowPoupanca}:${monthCol}${rowPoupanca + numberCategoriesVencimento - 1})`,
     };
 
-    worksheet.getCell(row + 4, col).value = { formula: `SUM(${monthCol}${row + 1}:${monthCol}${row + 2})` };
+    worksheet.getCell(row + 4, col).value = { formula: `SUM(${monthCol}${row}:${monthCol}${row + 1})` };
 
     const vencimentos = transactions
       .filter((t) => t.month === month && t.category.name === 'Vencimentos')
       .reduce((sum, t) => sum + t.amount, 0);
     worksheet.getCell(row + 6, col).value = vencimentos;
 
-    worksheet.getCell(row + 8, col).value = { formula: `${monthCol}${row + 7}-${monthCol}${row + 5}` };
+    worksheet.getCell(row + 8, col).value = { formula: `${monthCol}${row + 6}-${monthCol}${row + 4}` };
 
     col++;
   }
 
   // Save the workbook
-  await workbook.xlsx.writeFile(outputFile);
+  return await workbook.xlsx.writeBuffer();
 }
 
 module.exports = generateExcel;
